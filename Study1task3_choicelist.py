@@ -6,7 +6,7 @@ import random
 # API key
 openai.api_key = "api key"
 
-# Define the lotteries (probability, high payoff, low payoff)
+# Define the lotteries (probability of high payoff, high payoff, low payoff, expected value of the lottery)
 lotteries = [
     (0.25, 20, 4, 8),
     (0.375, 20, 4, 10),
@@ -28,6 +28,8 @@ sure_payoffs = list(range(5, 21))  # 5 to 20 euros
 understood = False
 attempt = 1
 while not understood and attempt <= 3:
+    print(f"\n=== COMPREHENSION CHECK (Attempt {attempt}) ===")
+
     p, x1, x2, x3 = random.choice(lotteries)       # pick a random lottery
     c = random.choice(range(5,21))
        
@@ -39,8 +41,6 @@ while not understood and attempt <= 3:
         f"Before making any decisions, explain in 2-3 sentences what you understand about the task and how you should choose. Your answer should be less than 30 words."
     )
     print(check_prompt)
-
-    print(f"\n=== COMPREHENSION CHECK (Attempt {attempt}) ===")
 
     check_response = openai.ChatCompletion.create(
         model="gpt-4o",
