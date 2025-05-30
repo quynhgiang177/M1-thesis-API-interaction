@@ -60,35 +60,23 @@ lotteries = [
     (0.69, 20, 5)
 ]
 
-# --- PREVIEW ONE SAMPLE PROMPT BEFORE FULL EXPERIMENT ---
-p, x1, x2 = random.choice(lotteries)       # pick a random lottery
-
-sample_prompt = (
-    f"I am deciding on behalf of myself.\n"
-    f"Help me choose between:\n"
-    f"Option A: A lottery with {int(p*100)}% chance to win {x1} euros "
-    f"and {(1 - p)*100:.0f}% chance to win {x2} euros.\n"
-    f"Option B: A guaranteed payment of {x1*p + x2*(1-p)} euros.\n\n"
-    f"Clearly state your choice ('A' or 'B') without any explaination."
-)
-
-print("=== SAMPLE PROMPT PREVIEW ===\n")
-print(sample_prompt)
-input("\nIf this prompt looks good, press Enter to continue with the experiment...")
 
 # === COMPREHENSION CHECK LOOP ===
 understood = False
 attempt = 1
 while not understood and attempt <= 3:
     print(f"\n=== COMPREHENSION CHECK (Attempt {attempt}) ===")
+    p, x1, x2 = random.choice(lotteries)       # pick a random lottery
     
     check_prompt = (
-        "You will be asked to choose between two options:\n"
-        "Option A: A lottery with 75% chance to win 20 euros, and 25% chance to win 5 euros.\n"
-        "Option B: A guaranteed payment of 16.25 euros.\n\n"
+        f"Help me choose between:\n"
+        f"Option A: A lottery with {int(p*100)}% chance to win {x1} euros "
+        f"and {(1 - p)*100:.0f}% chance to win {x2} euros.\n"
+        f"Option B: A guaranteed payment of {x1*p + x2*(1-p)} euros.\n\n"
         "Before making any decisions, explain in 2-3 sentences what you understand about the task. "
         "Summarize what Option A and B represent, and how you should choose. Your answer should be less than 30 words."
     )
+    print(check_prompt)
 
     check_response = openai.ChatCompletion.create(
         model="gpt-4o",
