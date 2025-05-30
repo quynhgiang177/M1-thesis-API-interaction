@@ -4,10 +4,10 @@ import random
 
 # experiment 1  bet amount 
 
-# OpenAI API key
-openai.api_key = "äpi key here"
+# Set your OpenAI API key
+openai.api_key = "API key"
 
-# Define the lotteries  (name of the lottery, win payout, prob of winning, prob of losing, lose paypout, expected value of the lottery)
+# Define the lotteries (Name of the lottery, Win payoff, prob of win payoff, prob of lose payoff, lose payoff, expected value of lottery)
 lotteries = {
     "Positive EV": [
         ("Lottery A", 3.5, 0.4, 0.6, 0, 1.4),
@@ -38,6 +38,8 @@ lotteries = {
     ]
 }
 
+
+
 # === COMPREHENSION CHECK LOOP ===
 understood = False
 attempt = 1
@@ -46,17 +48,17 @@ while not understood and attempt <= 3:
     lottery_type_r = random.choice(list(lotteries.keys()))
 
     sample_lottery = random.choice(lotteries[lottery_type_r])
-    
     check_prompt = (
-        f"In the following task, you will be asked to suggest a financial decision: "
-        f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on {sample_lottery[0]}? "
-        f"Win payout is {sample_lottery[1]}*q, the chance of winning is {sample_lottery[2]}. "
-        f"Lose payout is {sample_lottery[4]}*q, the chance of losing is {sample_lottery[3]}. "
-        f"I can keep '100 -q' as a saving. "
-        f"I can choose not to bet with q = 0. "
+        f"I have an endowment of 100 euros. I can choose to bet any amount q (from 0 to 100 euros) on the following lottery:\n"
+        f"- If I win (probability: {sample_lottery[2]}), I receive {sample_lottery[1]}*q.\n"
+        f"- If I lose (probability: {sample_lottery[3]}), I receive {sample_lottery[4]}*q.\n"
+        f"- Any unbet amount (100 - q) will be kept as savings.\n"
+        f"My final wealth will be the lottery payout plus the unbet savings.\n"
+        f"How much should I bet (value of q)?\n\n"
         f"Before making any decisions, explain in less than 50 words what you understand about the task and how you are going to choose q."
     )
     print(check_prompt)
+
     check_response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
@@ -88,12 +90,14 @@ def run_experiment():
     for lottery_type, lottery_group in lotteries.items():
         for lottery in lottery_group:
                 prompt = (
-                    f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on {lottery[0]}?"
-                    f"Win payout is {lottery[1]}*q, the chance of winning is {lottery[2]}. Lose payout is {lottery[4]}*q, the chance of losing is {lottery[3]}."
-                    f"I will keep '100 - q' as a saving."
-                    f"I can choose not to bet (q = 0)."
-                    f"First, explain your reasoning in less than 100 words."
-                    f"Then clearly state the amount of bet q (in numerical value only) on a new line."
+                    f"I have an endowment of 100 euros. I can choose to bet any amount q (from 0 to 100 euros) on the following lottery:\n"
+                    f"- If I win (probability: {lottery[2]}), I receive {lottery[1]}*q.\n"
+                    f"- If I lose (probability: {lottery[3]}), I receive {lottery[4]}*q.\n"
+                    f"- Any unbet amount (100 - q) will be kept as savings.\n"
+                    f"My final wealth will be the lottery payout plus the unbet savings.\n\n"
+                    f"How much should I bet (value of q)?\n"
+                    f"First, explain your reasoning in fewer than 100 words.\n"
+                    f"Then clearly state the amount to bet (q) on a new line - number only."
                 )
                 response = openai.ChatCompletion.create(
                 model="gpt-4o",
@@ -103,7 +107,7 @@ def run_experiment():
                 ],
                 temperature=0,
                 )
-                answer = response['choices'][0]['message']['content'].strip().upper()
+                answer = response['choices'][0]['message']['content'].strip()
                 
                 data.append({
                     "Condition": "Step-by-Step reasoning",
@@ -115,10 +119,12 @@ def run_experiment():
     for lottery_type, lottery_group in lotteries.items():
         for lottery in lottery_group:
                 prompt = (
-                    f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on {lottery[0]}?"
-                    f"Win payout is {lottery[1]}*q, the chance of winning is {lottery[2]}. Lose payout is {lottery[4]}*q, the chance of losing is {lottery[3]}."
-                    f"I will keep '100 - q' as a saving."
-                    f"I can choose not to bet (q = 0)."
+                    f"I have an endowment of 100 euros. I can choose to bet any amount q (from 0 to 100 euros) on the following lottery:\n"
+                    f"- If I win (probability: {lottery[2]}), I receive {lottery[1]}*q.\n"
+                    f"- If I lose (probability: {lottery[3]}), I receive {lottery[4]}*q.\n"
+                    f"- Any unbet amount (100 - q) will be kept as savings.\n"
+                    f"My final wealth will be the lottery payout plus the unbet savings.\n\n"
+                    f"How much should I bet (value of q)?\n"
                     f"Clearly state the amount of bet q (in numerical value only) you would suggest without any explanation."
                 )
                 response = openai.ChatCompletion.create(
@@ -147,6 +153,6 @@ experiment_data = run_experiment()
 
 # Save the data to an Excel file
 df = pd.DataFrame(experiment_data)
-df.to_excel("Study1task1_betamount_results.xlsx", index=False)
+df.to_excel("Study1task1_betamount_result.xlsx", index=False)
 
 print("Experiment completed and results saved")
