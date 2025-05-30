@@ -4,10 +4,10 @@ import random
 
 # experiment 1  bet amount 
 
-# Set your OpenAI API key
+# OpenAI API key
 openai.api_key = "äpi key here"
 
-# Define the lotteries 
+# Define the lotteries  (name of the lottery, win payout, prob of winning, prob of losing, lose paypout, expected value of the lottery)
 lotteries = {
     "Positive EV": [
         ("Lottery A", 3.5, 0.4, 0.6, 0, 1.4),
@@ -38,44 +38,25 @@ lotteries = {
     ]
 }
 
-# Define the 3 conditions
-conditions = ['Decide for themselves', 'Decide for spouse','Decide for a disliked cousin']
-
-# --- PREVIEW ONE SAMPLE PROMPT BEFORE FULL EXPERIMENT ---
-
-lottery_type_r = random.choice(list(lotteries.keys()))
-
-sample_lottery = random.choice(lotteries[lottery_type_r])
-
-sample_prompt = (
-    f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on {sample_lottery[0]}? "
-    f"Win payout is {sample_lottery[1]}*q, the chance of winning is {sample_lottery[2]}. "
-    f"Lose payout is {sample_lottery[4]}*q, the chance of losing is {sample_lottery[3]}. "
-    f"I can keep '100 -q' as a saving. "
-    f"I can choose not to bet with q = 0."
-    f"First, briefly explain your reasoning (in less than 50 words). "
-    f"Then clearly state the amount of bet q on a new line (number only)."
-)
-
-
-print("=== SAMPLE PROMPT PREVIEW ===\n")
-print(sample_prompt)
-input("\nIf this prompt looks good, press Enter to continue with the experiment...")
-
-
 # === COMPREHENSION CHECK LOOP ===
 understood = False
 attempt = 1
 while not understood and attempt <= 3:
     print(f"\n=== COMPREHENSION CHECK (Attempt {attempt}) ===")
+    lottery_type_r = random.choice(list(lotteries.keys()))
+
+    sample_lottery = random.choice(lotteries[lottery_type_r])
     
     check_prompt = (
-        f"In the following task, you will be asked to suggest a financial decision"
-        f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on lottery D? Win payout is 2.5*q, the chance of winning is 0.33. Lose payout is 0*q, the chance of losing is 0.67. I can keep '100 - q' as a saving."
-        f"I can choose not to bet (q = 0)."
+        f"In the following task, you will be asked to suggest a financial decision: "
+        f"I have an endowment of 100 euros. How much q (0 - 100 euros) should I bet on {sample_lottery[0]}? "
+        f"Win payout is {sample_lottery[1]}*q, the chance of winning is {sample_lottery[2]}. "
+        f"Lose payout is {sample_lottery[4]}*q, the chance of losing is {sample_lottery[3]}. "
+        f"I can keep '100 -q' as a saving. "
+        f"I can choose not to bet with q = 0. "
         f"Before making any decisions, explain in less than 50 words what you understand about the task and how you are going to choose q."
     )
-
+    print(check_prompt)
     check_response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
